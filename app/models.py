@@ -50,7 +50,7 @@ class Workorder(db.Model):
     Order_Op =  db.Column(db.String(10), index = True)
     Func_Loc = db.Column(db.String(30), index = True)
     Prio = db.Column(db.String(10), index = True)
-    Order_Status = db.Column(db.String(30), index = True)
+    Order_Status = db.Column(db.String(100), index = True)
     Est_Hours = db.Column(db.Float, index = True)
     Actual_Hours = db.Column(db.Float, index = True)
     Crea_Date = db.Column(db.DateTime, index = True)
