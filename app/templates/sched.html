@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<title>modifier ma liste</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+               
+  
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+
+
+    
+        
+    
+
+    <div class="container-fluid text-center">
+        <form method = 'POST' action= "/sched">
+            <label for="quantity">Cédule de la SEM</label>
+            <input type="number" id="semaine" name="semaine" min="1" max="52" value= {{sem}}>
+            <input type="submit" size = "2" style="display:none;" name= "changer" value="Changer de semaine">
+        </form> 
+    </div>
+        
+        
+<div class="table-responsive row container-fluid text-center"> 
+    <form method = 'POST' action= "/sched">        
+<table id="table" class="table text-center table-sort" >
+    <input class="form-control" id="myInput" type="text" placeholder="Mots clé.." >
+    
+    <thead id = "monheader" class="thead-light">
+        <tr class="row justify-content-center">
+        
+            <p id="showData"></p> 
+        
+            <!-- <th class="col-sm text-center">Numéro</th>                   
+            <th class="col text-center">Description</th>
+            <th class="col-sm text-center">Poste de travail</th>
+            <th class="col-sm text-center">Date de création</th>
+            <th class="col-sm text-center">date planifié</th>            
+            <th class="col-sm text-center">Estimé</th>
+            <th class="col-sm text-center">Planifié</th>
+            <th class="col-sm text-center">Lundi</th>
+            <th class="col-sm text-center">Mardi</th>  
+            <th class="col-sm text-center">Mercredi</th>  
+            <th class="col-sm text-center">Jeudi</th>  
+            <th class="col-sm text-center">Vendredi</th>    
+            
+        </tr>
+            
+        
+    </thead>
+    <tbody id="myTable" >
+        {% for ordre in schedule %}
+        <tr class="row justify-content-center">
+            <td class=" col-sm text-center font-weight-bold table-bordered"> {{ ordre.workorder.Order_Num }} {{ ordre.Order_Op}}</td>            
+            <td class="col text-center font-weight-bold table-bordered"> {{ ordre.workorder.Order_Desc }} </td>
+            <td class="col-sm text-center font-weight-bold table-bordered"> {{ ordre.workorder.workcenter.Ticker }} </td>
+            <td id="dateinsp" class="col-sm text-center font-weight-bold table-bordered" > {{ ordre.workorder.Crea_Date.strftime('%Y-%m-%d')  }} </td>
+            <td id="dateinsp" class="col-sm text-center font-weight-bold table-bordered" > {{ ordre.workorder.Basic_Start.strftime('%Y-%m-%d')  }} </td>            
+            <td id="dateinspann" class="col-sm text-center font-weight-bold table-bordered"> {{ ordre.workorder.Est_Hours  }} </td> 
+            <td id="dateinspann" class="col-sm text-center font-weight-bold table-bordered"> {{ ordre.Plan_hours  }} </td> 
+            <td id="dateinspann" class="col-sm text-center font-weight-bold table-bordered">  </td>
+            <td id="dateinspann" class="col-sm text-center font-weight-bold table-bordered">  </td>   
+            <td id="dateinspann" class="col-sm text-center font-weight-bold table-bordered">  </td>   
+            <td id="dateinspann" class="col-sm text-center font-weight-bold table-bordered">  </td>   
+            <td id="dateinspann" class="col-sm text-center font-weight-bold table-bordered">  </td>                
+            
+        </tr>
+        {% endfor %}    -->
+        <meta name= "table" content = "{{  js }} ">
+    
+
+</table>
+</form>
+
+<form  method = 'POST'   onsubmit="return setAction(this)" >
+
+<input type='hidden' id='numordre' name='numordre' value= ' numordre'>
+<input type='hidden' id='jour' name='jour' value= ' jour'>
+
+<input name = "move" id="move" type="submit" value="pousser"><input name = "retour" id="retour" type="submit" value="Retourner dans backlog">
+
+
+
+
+
+</form>
+
+
+</div>
+      
+
+<!-- <script id ="scriptsort" src="/static/table-sort.js"></script>   -->
+
+<script id="table" src="/static/table.js">   </script>
+<script id ="scriptsort" src="/static/table-sort.js"></script>  
+
+
+
+<!--ceci est le script de ajax-->
+<script>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
+{% endblock %}

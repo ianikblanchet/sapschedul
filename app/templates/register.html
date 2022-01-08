@@ -1,0 +1,69 @@
+{% extends "base3.html" %}
+
+{% block content %}
+<div class="container-fluid text-center"> 
+    <h1>Créer un compte</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            Prénom:<br>
+            {{ form.name(size=32) }}<br>            
+            
+            
+        </p>
+        <p>
+            Nom:<br>
+            {{ form.surname(size=32) }}<br>            
+            
+            
+        </p>
+        <p>
+            #Employé:<br>
+            {{ form.numemploye(size=32) }}<br>            
+            
+            
+        </p>
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=64) }}<br>
+            {% for error in form.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            
+            <label for="type">Rôle</label><br>
+            <select id="type" name="type">
+                <label for="type">Choisi ton rôle:</label>
+                <option value="employe">Planification</option>
+                <option value="superviseur">Supervision</option>                
+            </select><br>
+            
+            
+            
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(size=32) }}<br>
+            {% for error in form.password2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    </div>
+{% endblock %}

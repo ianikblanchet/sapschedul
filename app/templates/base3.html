@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block stylesheets %}
+        
+  
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  
+  
+      {% endblock stylesheets %}
+
+    </head>
+    <div class="jumbotron text-center">
+        
+        <h1 ></h1>
+    <body>
+        
+        <div class="container-fluid text-center"> 
+            <h1> {{ today }} </h1>
+        
+                     
+        </div>
+        {% block content %}{% endblock %}
+    </body>
+</html>

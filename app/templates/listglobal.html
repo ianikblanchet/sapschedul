@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<title>modifier ma liste</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+               
+  
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+
+
+    
+        
+    
+
+<div class=" container-fluid text-center">
+        
+        <h2>La liste des ordres actives</h2>
+<table id="table" class="table text-center table-sort table-striped table-bordered table-hover" >        
+<!-- <table id="table" class="table-sm text-center table-sort table-striped table-bordered table-hover" > -->
+    <form  method = 'POST'   onsubmit="return ceduler(this)">
+    <input type='hidden' id='numordre' name='numordre' value= ' numordre'>    
+
+    <input class="form-control" id="myInput" type="text" placeholder="Mots clé.." >
+    <input type='submit' id ='submit' class='btn btn-success btn-xs' value= "Céduler sélection semaine: "> <input id = "semaine" type='text' size = '2' name='semaine' value = ''>
+    <thead class="thead-light">
+        <tr >
+            <th scope="col" >Sélection</th>
+            <th scope="col" >Numéro</th>                   
+            <th scope="col">Description</th>
+            <th scope="col">Poste de travail</th>
+            <th scope="col">Date de création</th>
+            <th scope="col">Date de début planifié</th>
+            <th scope="col">Estimé</th>
+            <th scope="col">Priorité</th>  
+
+            
+        </tr>
+             
+       
+    </thead>
+    <tbody id="myTable" >
+        {% for ordre in listglobal %}
+        <tr >
+            <th scope = "row"> <input id= "ordre{{ loop.index }}" type = "checkbox" value = "True"></th>
+            <td  >{{ ordre.Order_Num }}-{{ ordre.Order_Op}}</td>            
+            <td >{{ ordre.Order_Desc }} </td>
+            <td >{{ ordre.workcenter.Ticker }} </td>
+            <td id="dateinsp"  > {{ ordre.Crea_Date.strftime('%Y-%m-%d')  }} </td>
+            <td id="dateinsp"  > {{ ordre.Basic_Start.strftime('%Y-%m-%d')  }} </td>
+            <td id="dateinspann" > {{ ordre.Est_Hours  }} </td>
+            <td id="Priorité" > {{ ordre.Prio  }} </td>             
+            
+        </tr>
+        {% endfor %}   
+
+    </tbody>
+    <script src="/static/expiration.js"></script>  
+</table>
+</form>
+</div>
+
+<script id="table" src="/static/cedule.js">   </script>
+<script id ="scriptsort" src="/static/table-sort.js"></script>  
+<!--ceci est le script de ajax-->
+
+<script>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
+{% endblock %}
