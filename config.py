@@ -9,4 +9,4 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-        uSQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)    
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)    
