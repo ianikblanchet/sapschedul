@@ -148,7 +148,7 @@ def listglobal():
 def sched():
     
     sem = (datetime.datetime.today().isocalendar()[1])
-
+    
 
 #la méthode pour modifier les heures planifiés
     if 'changheure' in request.form:

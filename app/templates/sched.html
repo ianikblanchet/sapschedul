@@ -20,9 +20,9 @@
     
 
     <div class="container-fluid text-center">
-        <form method = 'POST' action= "/sched">
+        <form name =  "semainecourante" method = 'POST' action= "/sched">
             <label for="quantity">Cédule de la SEM</label>
-            <input type="number" id="semaine" name="semaine" min="1" max="52" value= {{sem}}>
+            <input type="number" id="semaine" name="semaine" min="1" max="52" value= {{sem}} onchange="this.form.submit()" >
             <input type="submit" size = "2" style="display:none;" name= "changer" value="Changer de semaine">
         </form> 
     </div>
