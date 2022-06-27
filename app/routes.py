@@ -1,14 +1,17 @@
 from flask import Flask,render_template,flash, redirect, url_for
 from app import app
 from app import db
+from app import api
 import datetime
 import json
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 import pandas as pd
 from flask import request
-from app.models import User, Workorder, Workcenter, Capac, Sched
+from app.models import User, Workorder, Workcenter, Capac, Sched, Stat
 from app.forms import LoginForm,RegistrationForm
+from flask_restful import Api, Resource, fields, marshal_with
+
 
 @app.route('/')
 @app.route('/index')
@@ -60,7 +63,7 @@ def register():
 def upload():
    return render_template('upload.html')
 	
-@app.route('/uploader', methods = ['GET', 'POST'])
+@app.route('/uploader', methods = ['POST'])
 def uploader():
     #Importer le fichier excel et en faire un DF en ajoutant le combo ordre opération
    if request.method == 'POST':
@@ -105,7 +108,53 @@ def uploader():
       
       return 'file uploaded successfully'
 
-@app.route('/afermer', methods = ['GET', 'POST'])
+@app.route('/stat', methods = ['POST'])
+def stat():
+    #Importer le fichier excel et en faire un DF en ajoutant le combo ordre opération
+   if request.method == 'POST':
+      f = request.files['stat']
+      df = pd.read_excel(f)      
+      df['Mois']  = pd.DatetimeIndex(df['Created on']).month
+      df['Annee'] = pd.DatetimeIndex(df['Created on']).year
+      df['Age'] = (datetime.datetime.now() - df['Created on']).dt.days
+      print(df)
+      
+    #je fais une query pour importer la base de données et je créer ma liste de combo ordre opération pour comp. futur
+      liststat = Stat.query.all()    
+      numordre = []
+      for order in liststat:
+          numordre.append(str(order.Order_Num))   
+
+    
+      for ind in df.index:
+          
+          #je load l'objet base de donné et fonction de filtre provenant de l'élément du DF
+          wo = Stat.query.filter_by(Order_Num = df['Order'][ind].astype(str)).first()
+          #je valide si l'element exist dans la base de donnée si oui j'update certain champ, sinonje le créer
+          if df['Order'][ind] in numordre:
+              
+              wo.Description = df['Description'][ind]              
+              wo.Prio = df['Priority'][ind]              
+              wo.Statututil = df['User status'][ind]
+              wo.Statutsys = df['System status'][ind]               
+              wo.Func_Loc = df['Functional loc.'][ind]
+              wo.Basic_Start = df['Bas. start date'][ind]
+              wo.Pdt = df['Main WorkCtr'][ind]
+              wo.Mois = df['Mois'][ind]
+              wo.Annee = df['Annee'][ind]
+              wo.Age = df['Age'][ind]
+              db.session.commit()
+              print('il est là')
+          else:
+              db.session.add(Stat(Description=df['Description'][ind], Order_Num= df['Order'][ind].astype(str),  Func_Loc=df['Functional Loc.'][ind], Prio=df['Priority'][ind].astype(str), Statututil=df['User status'][ind], Statutsys=df['System status'][ind],  Crea_Date=df['Created on'][ind],Basic_Start=df['Bas. start date'][ind], Pdt= df['Main WorkCtr'][ind], Annee= df['Annee'][ind].astype(str), Mois= df['Mois'][ind].astype(str), Age= df['Age'][ind].astype(str) ))
+              db.session.commit()
+              print('pas là')
+
+      
+      return 'Les ordres pour les stats sont mise à jour'
+
+
+@app.route('/afermer', methods = [ 'POST'])
 def afermer():
    if request.method == 'POST':
       f = request.files['file']
@@ -130,7 +179,7 @@ def afermer():
       return 'validation terminé'
 
 
-@app.route('/listglobal', methods = ['GET', 'POST'])
+@app.route('/listglobal', methods = [ 'GET','POST'])
 def listglobal():
         
     print(datetime.date(2022,1,3).isocalendar()[1])
@@ -144,15 +193,17 @@ def listglobal():
     print(date3)
     return render_template("listglobal.html",today = datetime.date.today(), listglobal=listglobal)
 
-@app.route('/sched', methods = ['GET', 'POST'])
+@app.route('/sched', methods = [ 'GET', 'POST'])
 def sched():
     
     sem = (datetime.datetime.today().isocalendar()[1])
+    listcheck = []
     
 
 #la méthode pour modifier les heures planifiés
     if 'changheure' in request.form:
         sem = int(request.form['semaine1'])
+        listcheck = request.form['listcheck3']
         d = request.form['jour']
         h = request.form['heure']
         n= request.form['numordre']
@@ -167,10 +218,13 @@ def sched():
             db.session.commit()
         print(id)
         print('ok-ca marche ' + d +'-'+ h + '-' + n)
+
+
 #méthode pour pousser d'une semaine
     if 'move' in request.form:    
         j= (request.form['jour']).split(",")
         n = (request.form['numordre']).split(",")
+        listcheck = request.form['listcheck2']
         
         sem = datetime.datetime.strptime(j[1], "%a %y/%m/%d").isocalendar()[1]
         
@@ -207,9 +261,17 @@ def sched():
 
 
 #pour changer de semaine on lance cette condition avant de générer la cédule de la semaine
-    if 'changer' in request.form:
-        sem = int(request.form['semaine'])
+    # if 'semaine' in request.form:
+    #     sem = int(request.form['semaine'])
+    #     listcheck = request.form['listcheck3']
 
+#pour filtrer avec les checkbox
+    if 'refresh' in request.form: 
+        sem = int(request.form['semaine'])   
+        listcheck = request.form['listcheck']
+    #else:
+        #listcheck = []
+        
 
 #le code pour générer la cédule
     lundi = datetime.date.fromisocalendar(2022, sem, 1)
@@ -225,8 +287,18 @@ def sched():
     df = pd.DataFrame(columns = column_names)
     
     #print(df)
-    schedule = Sched.query.filter(Sched.Daily >= lundi).filter(Sched.Daily < samedi).all()    
-    capacite = Capac.query.all()
+    schedule = Sched.query.filter(Sched.Daily >= lundi).filter(Sched.Daily < samedi).all()
+    semcour = [lundi,mardi,mercredi, jeudi,vendredi]
+    #capacite = db.session.query(Capac).filter(Capac.Daily in un).all()
+    capacite = Capac.query.filter(Capac.Daily.in_(semcour) ).all()
+    cpacjson = {}
+    for capacpdt in capacite:
+        if capacpdt.workcenter.Ticker in cpacjson.keys():
+            cpacjson[capacpdt.workcenter.Ticker][str(capacpdt.Daily)] = capacpdt.cap
+        else:
+            cpacjson.update({capacpdt.workcenter.Ticker:{str(capacpdt.Daily) : capacpdt.cap}})
+
+    print(cpacjson)  
 
     numordre = []
     for ordre in schedule:
@@ -236,7 +308,7 @@ def sched():
             neworder={"num":ordre.workorder.Order_Num,"op":ordre.workorder.Order_Op, "desc":ordre.workorder.Order_Desc , "pdt":ordre.workorder.workcenter.Ticker, "datecre":ordre.workorder.Crea_Date , "dateplan":ordre.workorder.Basic_Start, "estime":ordre.workorder.Est_Hours, "Priorité":ordre.workorder.Prio, lundi:0, mardi:0, mercredi:0, jeudi:0, vendredi:0}
             df = df.append(neworder, ignore_index=True)
     df['numcom']  = df['num'].astype(str) + df['op'].astype(str)
-    print(df)
+    
 
     for ordre in schedule:
         num = str(ordre.workorder.Order_Num) + str(ordre.workorder.Order_Op)
@@ -252,11 +324,28 @@ def sched():
     df1 = df.drop(columns=['numcom'])
     df1['Total'] = df1[lundi] + df1[mardi] + df1[mercredi] + df1[jeudi] + df1[vendredi]
     
-    print(df1)
+    
     df1.rename(columns={'num':'Numéro', 'op':'Opération', 'desc': 'Description','pdt':'Poste de Travail', 'datecre':'Créer le', 'dateplan':'Début Prévu', 'estime':'Estimé',  lundi: lundi.strftime("%a %y/%m/%d"), mardi: mardi.strftime("%a %y/%m/%d"), mercredi: mercredi.strftime("%a %y/%m/%d"), jeudi: jeudi.strftime("%a %y/%m/%d"), vendredi: vendredi.strftime("%a %y/%m/%d")}, inplace=True)
     js = df1.to_json(orient = 'records', date_format= 'iso')
-    print(js)
-    return render_template("sched.html",today = datetime.date.today(), schedule=schedule, capacite=capacite, sem= sem, df=df, js=js )
+    
+    
+    cappdt = json.dumps(cpacjson)
+    semcourante = json.dumps(semcour, default=str)
+
+    return render_template("sched.html",today = datetime.date.today(), schedule=schedule, capacite=capacite, sem= sem, df=df, js=js, listcheck=listcheck, cappdt= cappdt, semcourante = semcourante)
+
+
+@app.route('/testfetch', methods = ['GET', 'POST'])
+def testfetch():
+    capacite = Capac.query.all()
+    postjson = request.json
+    postdata= postjson['test2']['item1']
+    print(postdata)
+    print(postjson)
+    
+    test = 'oktest'
+    tesfetch = json.dumps(test)
+    return tesfetch
 
 
 
@@ -330,6 +419,8 @@ def pousse():
     # mercredi = datetime.date.fromisocalendar(2022, sem, 3)
     # jeudi = datetime.date.fromisocalendar(2022, sem, 4)
     # vendredi = datetime.date.fromisocalendar(2022, sem, 5)
+
+
 @app.route('/ceduler', methods = ['GET', 'POST'])
 def ceduler():
     n = (request.form['numordre']).split(",")
@@ -355,3 +446,51 @@ def ceduler():
     print(request.form['semaine'])
     print(request.form['numordre'])
     return redirect(url_for('listglobal') )
+
+@app.route('/capacite', methods = ['GET', 'POST'])
+def capacite():
+
+    sem = 9 #int(request.form['sem'])
+    lundi = datetime.datetime.fromisocalendar(2022, sem , 1)
+    mardi = datetime.datetime.fromisocalendar(2022, sem , 2)
+    mercredi = datetime.datetime.fromisocalendar(2022, sem , 3)
+    jeudi = datetime.datetime.fromisocalendar(2022, sem , 4)
+    vendredi = datetime.datetime.fromisocalendar(2022, sem , 5)
+    jour = [lundi, mardi, mercredi,jeudi,vendredi]
+    listposte = ['MSERMAI','MSEREL','MSERSYH','MSERMEC','MREPELC','MREPELT', 'MREPMAI','MREPMEC' ,'MFACELP','MFACLAB' ]
+
+    if 'crecapsem' in request.form:    
+        sem = int(request.form['sem'])
+        lundi = datetime.datetime.fromisocalendar(2022, sem , 1)
+        mardi = datetime.datetime.fromisocalendar(2022, sem , 2)
+        mercredi = datetime.datetime.fromisocalendar(2022, sem , 3)
+        jeudi = datetime.datetime.fromisocalendar(2022, sem , 4)
+        vendredi = datetime.datetime.fromisocalendar(2022, sem , 5)
+        jour = [lundi, mardi, mercredi,jeudi,vendredi]
+        listposte = ['MSERMAI','MSEREL','MSERSYH','MSERMEC','MREPELC','MREPELT', 'MREPMAI','MREPMEC' ,'MFACELP','MFACLAB' ]
+        for post in listposte:
+            for j in jour:
+                db.session.add(Capac(Workcenter_id = (Workcenter.query.filter_by(Ticker= post).first()).id , Daily = j , cap=(Workcenter.query.filter_by(Ticker= post).first()).Heure_jour))
+                db.session.commit()
+
+    if 'crecappos' in request.form:
+        post = Workcenter.query.filter_by(Ticker= request.form['postecap']).first()
+        post.Heure_jour = request.form['capposte']
+        db.session.commit()
+    
+    capposte = []
+    for post in listposte:
+        arraypost = []
+        arraypost.append(post)
+        for j in jour:
+            if Capac.query.filter_by(Workcenter_id = (Workcenter.query.filter_by(Ticker= post).first()).id).filter_by(Daily = j).first() != None:
+                arraypost.append(Capac.query.filter_by(Workcenter_id = (Workcenter.query.filter_by(Ticker= post).first()).id).filter_by(Daily = j).first().cap)
+            else:
+                arraypost.append(0)
+        capposte.append(arraypost)
+     
+    capacite = capposte
+    
+
+
+    return render_template("capacite.html", capacite = capacite, jour = jour)

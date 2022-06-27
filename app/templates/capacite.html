@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<title>Planification</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+               
+  
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+
+<form method = 'POST' action="/capacite"> 
+<div>
+    
+    <div>
+        <label for="sem">Semaine</label>
+        <input type="number" id="sem" name="sem"/>        
+        <input type="submit" id="crecapsem" name="crecapsem" value = "Créer capacité de la Semaine"/>   
+    </div>
+    <div>
+        <label for="conge">Heures de congé</label>
+        <input type="number" id="conge" name="conge"/>
+        <label for="dateconge">date du congé</label>
+        <input type="date" id="dateconge" name="conge"/>
+        <label for="poste">Poste de travail</label>
+        <input type="text" id="poste" name="poste"/>
+        <input type="submit" id="crecongpost" name="crecongpost" value = "Entrer congé du poste"/>   
+    </div>  
+    <div>        
+        <label for="capposte">capacité du poste</label>
+        <input type="number" id="capposte" name="capposte"/>
+        <label for="postecap">Poste de travail</label>
+        <input type="text" id="postecap" name="postecap"/>                
+        <input type="submit" id="crecappos" name="crecappos" value = "modifier capacité du poste"/>   
+    </div>  
+   
+</div>
+</form>
+
+<div>
+    <table id="table" class="table text-center table-sort table-striped table-bordered table-hover" >        
+        
+            <thead class="thead-light">
+                <tr >                
+                    <th scope="col" >Poste de Travail</th>
+                    <th scope="col" >{{ jour[0].strftime('%Y-%m-%d') }}</th>                   
+                    <th scope="col">{{ jour[1].strftime('%Y-%m-%d') }}</th>
+                    <th scope="col">{{ jour[2].strftime('%Y-%m-%d') }}</th>
+                    <th scope="col">{{ jour[3].strftime('%Y-%m-%d') }}</th>
+                    <th scope="col">{{ jour[4].strftime('%Y-%m-%d') }}</th>
+                    <th scope="col">Total</th>                   
+        
+                    
+                </tr>
+                     
+               
+            </thead>
+            <tbody id="myTable" >
+                {% for cap in capacite %}
+                <tr >                    
+                    <td  >{{ cap[0] }}</td>
+                    <td  >{{ cap[1] }}</td>
+                    <td  >{{ cap[2] }}</td>
+                    <td  >{{ cap[3] }}</td>
+                    <td  >{{ cap[4] }}</td>
+                    <td  >{{ cap[5] }}</td>               
+                               
+                    
+                </tr>
+                {% endfor %}   
+        
+            </tbody>
+            
+        </table>
+</div>
+
+
+
+{% endblock %}
