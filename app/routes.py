@@ -123,26 +123,26 @@ def stat():
       liststat = Stat.query.all()    
       numordre = []
       for order in liststat:
-          numordre.append(str(order.Order_Num))   
-
-    
+          numordre.append(order.Order_Num)   
+        
+      print(numordre)
       for ind in df.index:
           
           #je load l'objet base de donné et fonction de filtre provenant de l'élément du DF
           wo = Stat.query.filter_by(Order_Num = df['Order'][ind].astype(str)).first()
           #je valide si l'element exist dans la base de donnée si oui j'update certain champ, sinonje le créer
-          if df['Order'][ind] in numordre:
+          if df['Order'][ind].astype(str) in numordre:
               
               wo.Description = df['Description'][ind]              
-              wo.Prio = df['Priority'][ind]              
+              wo.Prio = df['Priority'][ind].astype(str)             
               wo.Statututil = df['User status'][ind]
               wo.Statutsys = df['System status'][ind]               
-              wo.Func_Loc = df['Functional loc.'][ind]
+              wo.Func_Loc = df['Functional Loc.'][ind]
               wo.Basic_Start = df['Bas. start date'][ind]
               wo.Pdt = df['Main WorkCtr'][ind]
-              wo.Mois = df['Mois'][ind]
-              wo.Annee = df['Annee'][ind]
-              wo.Age = df['Age'][ind]
+              wo.Mois = df['Mois'][ind].astype(str)
+              wo.Annee = df['Annee'][ind].astype(str)
+              wo.Age = df['Age'][ind].astype(str)
               db.session.commit()
               print('il est là')
           else:
