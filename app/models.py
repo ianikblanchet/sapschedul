@@ -4,6 +4,7 @@ from app import admin
 #login miguel
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy.dialects.postgresql import JSONB
 from flask_admin.contrib.sqla import ModelView
 from app import login
 from flask_login import current_user, login_user, logout_user, login_required
@@ -122,6 +123,13 @@ class Stat(db.Model):
     Mois = db.Column(db.String(12), index = True)
     Age = db.Column(db.String(12), index = True)
 
+class Cgvmsl(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    Dataname = db.Column(db.String(20), index = True)  
+    Datemaj = db.Column(db.DateTime, index = True)
+    Livedata = db.Column(JSONB)
+    Histdata = db.Column(JSONB)
+
 
 
 admin.add_view(ModelView(Equip, db.session))
@@ -129,3 +137,4 @@ admin.add_view(ModelView(Workorder, db.session))
 admin.add_view(ModelView(Capac, db.session))
 admin.add_view(ModelView(Workcenter, db.session))
 admin.add_view(ModelView(Stat, db.session))
+admin.add_view(ModelView(Cgvmsl, db.session))

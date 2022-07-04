@@ -27,9 +27,17 @@
          <input type = "submit"/>
       </form>  -->
 
-      <form action = "https://sapschedule.herokuapp.com/stat" method = "POST" 
+      <!-- <form action = "https://sapschedule.herokuapp.com/stat" method = "POST" 
          enctype = "multipart/form-data">
          <input type = "file" name = "stat" />
+         <input type = "submit"/>
+      </form>  -->
+
+      <form action = "https://sapschedule.herokuapp.com/statordre" method = "POST" 
+         enctype = "multipart/form-data">
+         <h1>Ordre</h1>
+         <p>Utiliser IW38, variante BACKLOGORDRE. Il faut que le SAP soit en anglais et il faut enlever les dates du champs période. changer la date de fin de créer le pour la date d'aujopurd'hui. Exporter en excel dans un dossier local.</p>
+         <input type = "file" name = "statordre" />
          <input type = "submit"/>
       </form> 
    </body>

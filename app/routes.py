@@ -8,7 +8,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 import pandas as pd
 from flask import request
-from app.models import User, Workorder, Workcenter, Capac, Sched, Stat
+from app.models import User, Workorder, Workcenter, Capac, Sched, Stat, Cgvmsl
 from app.forms import LoginForm,RegistrationForm
 from flask_restful import Api, Resource, fields, marshal_with
 
@@ -150,6 +150,25 @@ def stat():
               db.session.commit()
               print('pas là')
 
+      
+      return 'Les ordres pour les stats sont mise à jour'
+
+@app.route('/statordre', methods = ['POST'])
+def statordre():
+    #Importer le fichier excel et en faire un DF en ajoutant le combo ordre opération
+   if request.method == 'POST':
+      f = request.files['statordre']
+      df = pd.read_excel(f)      
+      df['Mois']  = pd.DatetimeIndex(df['Created on']).month
+      df['Annee'] = pd.DatetimeIndex(df['Created on']).year
+      df['Age'] = (datetime.datetime.now() - df['Created on']).dt.days
+      print(df)
+      
+    #je fais une query pour importer la base de données et je créer ma liste de combo ordre opération pour comp. futur
+      listordre = Cgvmsl.query.filter_by(Dataname = 'Ordre').first() 
+      listordre.Livedata = df.to_json(orient = "records")
+      listordre.Datemaj = datetime.datetime.now()
+      db.session.commit()
       
       return 'Les ordres pour les stats sont mise à jour'
 
