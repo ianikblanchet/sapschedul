@@ -172,6 +172,23 @@ def statordre():
       
       return 'Les ordres pour les stats sont mise à jour'
 
+@app.route('/statavis', methods = ['POST'])
+def statavis():
+    #Importer le fichier excel et en faire un DF en ajoutant le combo ordre opération
+   if request.method == 'POST':
+      f = request.files['statavis']
+      df = pd.read_excel(f)     
+      
+      print(df)
+      
+    #je fais une query pour importer la base de données et je créer ma liste de combo ordre opération pour comp. futur
+      listavis = Cgvmsl.query.filter_by(Dataname = 'Avis').first() 
+      listavis.Livedata = df.to_json(orient = "records")
+      listavis.Datemaj = datetime.datetime.now()
+      db.session.commit()
+      
+      return 'Les avis pour les stats sont mise à jour'
+
 
 @app.route('/afermer', methods = [ 'POST'])
 def afermer():

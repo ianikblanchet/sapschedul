@@ -33,10 +33,18 @@
          <input type = "submit"/>
       </form>  -->
 
+      <form action = "https://sapschedule.herokuapp.com/statavis" method = "POST" 
+         enctype = "multipart/form-data"  style="border: 1px solid black; padding :30px">
+         <h1>Statistiques Avis</h1>
+         <p>Utiliser IW28, variante statavis.<br> Il faut que le SAP soit en anglais.<br>Exporter en excel dans un dossier local.</p>
+         <input type = "file" name = "statavis" />
+         <input type = "submit"/>
+      </form> 
+
       <form action = "https://sapschedule.herokuapp.com/statordre" method = "POST" 
-         enctype = "multipart/form-data">
-         <h1>Ordre</h1>
-         <p>Utiliser IW38, variante BACKLOGORDRE. Il faut que le SAP soit en anglais et il faut enlever les dates du champs période. changer la date de fin de créer le pour la date d'aujopurd'hui. Exporter en excel dans un dossier local.</p>
+         enctype = "multipart/form-data" style="border: 1px solid black; padding :30px">
+         <h1>Statistiques Ordre</h1>
+         <p>Utiliser IW38, variante BACKLOGORDRE.<br> Il faut que le SAP soit en anglais.<br> Il faut enlever les dates du champs période. <br>Changer la date de fin de créer le pour la date d'aujourd'hui.<br> Exporter en excel dans un dossier local.</p>
          <input type = "file" name = "statordre" />
          <input type = "submit"/>
       </form> 
