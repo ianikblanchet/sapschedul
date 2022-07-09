@@ -189,6 +189,41 @@ def statavis():
       
       return 'Les avis pour les stats sont mise à jour'
 
+@app.route('/statpm', methods = ['POST'])
+def statpm():
+    #Importer le fichier excel et en faire un DF en ajoutant le combo ordre opération
+   if request.method == 'POST':
+      f = request.files['statpm']
+      df = pd.read_excel(f)     
+      
+      print(df)
+      
+    #je fais une query pour importer la base de données et je créer ma liste de combo ordre opération pour comp. futur
+      listpm = Cgvmsl.query.filter_by(Dataname = 'Pm').first() 
+      listpm.Livedata = df.to_json(orient = "records")
+      listpm.Datemaj = datetime.datetime.now()
+      db.session.commit()
+      
+      return 'Les pm pour les stats sont mise à jour'
+
+
+@app.route('/statpt', methods = ['POST'])
+def statpt():
+    #Importer le fichier excel et en faire un DF en ajoutant le combo ordre opération
+   if request.method == 'POST':
+      f = request.files['statpt']
+      df = pd.read_excel(f)     
+      
+      print(df)
+      
+    #je fais une query pour importer la base de données et je créer ma liste de combo ordre opération pour comp. futur
+      listpt = Cgvmsl.query.filter_by(Dataname = 'Zzxref').first() 
+      listpt.Livedata = df.to_json()
+      listpt.Datemaj = datetime.datetime.now()
+      db.session.commit()
+      
+      return 'Les zzxref pour les stats sont mise à jour'
+
 
 @app.route('/afermer', methods = [ 'POST'])
 def afermer():

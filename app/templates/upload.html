@@ -48,6 +48,15 @@
          <input type = "file" name = "statordre" />
          <input type = "submit"/>
       </form> 
+
+      <form action = "https://sapschedule.herokuapp.com/statpm" method = "POST" 
+         enctype = "multipart/form-data" style="border: 1px solid black; padding :30px">
+         <h1>Statistiques Pm</h1>
+         <p>Utiliser IW38, variante statpm.<br> Il faut que le SAP soit en anglais.<br> Il faut enlever les dates du champs période. <br>Changer la date de fin de créer le pour la date d'aujourd'hui.<br> Exporter en excel dans un dossier local.</p>
+         <input type = "file" name = "statpm" />
+         <input type = "submit"/>
+      </form> 
+      
    </body>
 </html>
 
